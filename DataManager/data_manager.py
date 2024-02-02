@@ -9,13 +9,12 @@ import datetime as dt
 # Yahoo finance imports
 import yfinance as yf
 
-
-# Scrapers
-scraper_path = os.path.join("..", "Scrapers")
-print(f"Scraper: {scraper_path}")
+# Add the parent directory to sys.path
 sys.path.append(os.path.abspath(os.path.join("..", "Scrapers")))
-import Scrapers.macro_scraper
-import Scrapers.equity_scraper
+
+# Now you can use relative imports
+from Scrapers.macro_scraper import MacroScraper
+from Scrapers.equity_scraper import EquityScraper
 
 # Pandas
 import pandas as pd
@@ -42,8 +41,8 @@ class DataManager:
         self.equities_folder = os.path.join(self.base_path, "EquityData")
         self.macro_folder = os.path.join(self.base_path, "MacroData")
         self.log_data = log_data
-        self.macro_scraper = Scrapers.macro_scraper.MacroScraper()
-        self.equity_scraper = Scrapers.equity_scraper.EquityScraper()
+        self.macro_scraper = MacroScraper()
+        self.equity_scraper = EquityScraper()
 
     ##################################################################### Equity Price Fetching #####################################################################
     def fetch_externally(self, ticker: str, period="max", interval="1d"):
@@ -302,6 +301,49 @@ class DataManager:
             data = pd.read_csv(file_path)  # Read again after updating
         return data
 
+    ##################################################################### Financial Statements #####################################################################
+    def get_income_statement(self, ticker: str, freq: str = "q"):
+        if freq == "q":
+            freq = "Quarter"
+        elif freq == "a":
+            freq = "Annual"
+        file_path = f"{self.equities_folder}\\Stocks\\{ticker.upper()}\\Statements\\{freq}\\{ticker.upper()}_income_statement.csv"
+
+        try:
+            data = pd.read_csv(file_path)
+        except FileNotFoundError:
+            data = self.equity_scraper.get_income_statement(ticker.upper(), freq)
+            data.to_csv(file_path)
+        return data
+
+    def get_balance_sheet(self, ticker: str, freq: str = "q"):
+        if freq == "q":
+            freq = "Quarter"
+        elif freq == "a":
+            freq = "Annual"
+        file_path = f"{self.equities_folder}\\Stocks\\{ticker.upper()}\\Statements\\{freq}\\{ticker.upper()}_balance_sheet.csv"
+
+        try:
+            data = pd.read_csv(file_path)
+        except FileNotFoundError:
+            data = self.equity_scraper.get_balance_sheet(ticker.upper(), freq)
+            data.to_csv(file_path)
+        return data
+
+    def get_cash_flow(self, ticker: str, freq: str = "q"):
+        if freq == "q":
+            freq = "Quarter"
+        elif freq == "a":
+            freq = "Annual"
+        file_path = f"{self.equities_folder}\\Stocks\\{ticker.upper()}\\Statements\\{freq}\\{ticker.upper()}_cash_flow.csv"
+
+        try:
+            data = pd.read_csv(file_path)
+        except FileNotFoundError:
+            data = self.equity_scraper.get_cash_flow(ticker.upper(), freq)
+            data.to_csv(file_path)
+        return data
+
     ##################################################################### Utilities #####################################################################
     def is_outdated(self, date, day_threshold: int = 70):
         # Ensure month has a leading zero
@@ -319,3 +361,28 @@ class DataManager:
             return True
         else:
             return False
+
+    def setup_local_equity_files(self, ticker: str):
+        ticker = ticker.upper()
+
+        base_path = f"{self.equities_folder}\\Stocks"
+
+        # Attributes
+        # Stock folder
+        stock_folder = f"{base_path}\\{ticker.upper()}"
+        os.makedirs(stock_folder, exist_ok=True)  # Create folder if it does not exist.
+        # Dividends
+        dividends_folder = f"{stock_folder}\\Dividends"
+        os.makedirs(dividends_folder, exist_ok=True)
+        # Institutional holders
+        institutional_folder = f"{stock_folder}\\InstitutionalHolders"
+        os.makedirs(institutional_folder, exist_ok=True)
+        # Financial Statements
+        statements_folder = f"{stock_folder}\\Statements"
+        os.makedirs(statements_folder, exist_ok=True)
+        # Annual statements
+        annual_folder = f"{statements_folder}\\Annual"
+        os.makedirs(annual_folder, exist_ok=True)
+        # Quarterly Statements
+        quarter_folder = f"{statements_folder}\\Quarter"
+        os.makedirs(quarter_folder, exist_ok=True)

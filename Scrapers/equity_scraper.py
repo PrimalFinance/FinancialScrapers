@@ -39,7 +39,6 @@ class EquityScraper:
     def __init__(self) -> None:
 
         self.key = os.getenv("alpha_vantage_key")
-        self.earnings_csv = earnings_csv + f"\\{earnings_csv}.csv"
 
         # Root url to make queries.
         self.root_url = "https://www.alphavantage.co/query"
@@ -417,13 +416,6 @@ class EquityScraper:
         element.click()
 
     """-------------------------------"""
-
-    def build_query(self, ticker: str, func: str) -> str:
-        end_point = f"query?function={func}&symbol={ticker.upper}&apikey={self.key}"
-        query = self.root_url + end_point
-        return query
-
-    """-------------------------------"""
     """------------------------------- Date Utilities -------------------------------"""
 
     def compare_dates(self, date1, date2, days_threshold: int = 10):
@@ -594,3 +586,80 @@ class EquityScraper:
             print(f"[Error] Retrieving Earnings Estimates")
 
     """-------------------------------"""
+
+    def get_income_statement(self, ticker: str, period: str = "q") -> pd.DataFrame:
+        query = self.build_query(ticker=ticker, func="INCOME_STATEMENT")
+        r = requests.get(query)
+        data = r.json()
+        df = None
+        # Create a dataframe.
+        if period in self.quarterly_params:
+            df = pd.DataFrame(data["quarterlyReports"])
+        elif period in self.annual_params:
+            df = pd.DataFrame(data["annualReports"])
+        # Make the row index the dates of the filing.
+        df.set_index("fiscalDateEnding", inplace=True)
+        # Transpose the dataframe to swap the row labels with the column labels. We want the dates to be the column.
+        df = df.transpose()
+        # Reverse the order of the columns. We want the oldest filings on the left, and the newest ones on the right.
+        df = df.iloc[:, ::-1]
+        return df
+
+    """-------------------------------"""
+
+    def get_balance_sheet(self, ticker: str, period: str = "q") -> pd.DataFrame:
+        # Create a query
+        query = self.build_query(ticker=ticker.upper(), func="BALANCE_SHEET")
+        r = requests.get(query)
+        data = r.json()
+        df = None
+        # Create a dataframe.
+        if period in self.quarterly_params:
+            df = pd.DataFrame(data["quarterlyReports"])
+        elif period in self.annual_params:
+            df = pd.DataFrame(data["annualReports"])
+
+        # Make the index the dates of the period of report.
+        df.set_index("fiscalDateEnding", inplace=True)
+        # Transpose the dataframe to swap the row labels with the column labels.
+        df = df.transpose()
+        # Reverse the order of the columns. We want the olders filing on the lft, and the newest ones on the right.
+        df = df.iloc[:, ::-1]
+        return df
+
+    """-------------------------------"""
+
+    def get_cash_flow(self, ticker: str, period: str) -> pd.DataFrame:
+        # Create a query
+        query = self.build_query(ticker=ticker.upper(), func="CASH_FLOW")
+        r = requests.get(query)
+        data = r.json()
+        df = None
+        # Create a dataframe.
+        if period in self.quarterly_params:
+            df = pd.DataFrame(data["quarterlyReports"])
+        elif period in self.annual_params:
+            df = pd.DataFrame(data["annualReports"])
+        # Make the index the dates of the period of report.
+        df.set_index("fiscalDateEnding", inplace=True)
+        # Transpose the dataframe to swap the row labels with the column labels.
+        df = df.transpose()
+        # Reverse the order of the columns. We want the olders filing on the lft, and the newest ones on the right.
+        df = df.iloc[:, ::-1]
+        # Calculate the FCF as alpha vantage does not provide it by default.
+        op_cashflow = df.loc["operatingCashflow"].astype(float)
+        try:
+            capex = df.loc["capitalExpenditures"].astype(float)
+            df.loc["freeCashflow"] = op_cashflow - capex
+        except ValueError:
+            capex = self.cash_flow.loc["capitalExpenditures"]
+            df.loc["freeCashflow"] = op_cashflow - capex
+        return df
+
+    """-------------------------------"""
+    """-----------------------------------"""
+
+    def build_query(self, ticker: str, func: str) -> str:
+        end_point = f"query?function={func}&symbol={ticker.upper()}&apikey={self.key}"
+        query = self.root_url + end_point
+        return query
