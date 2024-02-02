@@ -52,21 +52,30 @@ class DataManager:
         df = yf.download(ticker, period=period, interval=interval)
         return df
 
-    def get_data(self, ticker: str, crypto: bool = False, overwrite: bool = False):
+    def get_data(self, ticker: str, crypto: bool = False, force_update: bool = False):
+        ticker = ticker.upper()
         ticker_file = os.path.join(
             self.equities_folder,
-            f"Stocks\\{ticker.upper()}\\{ticker.upper()}_prices.csv",
+            f"Stocks\\{ticker}\\{ticker}_prices.csv",
         )
-        if overwrite:
+        # Force new data to be written locally.
+        if force_update:
             df = self.fetch_externally(ticker)
             df["Close_Pct_Change"] = df["Adj Close"].pct_change() * 100
             df = self.calc_rsi(df)
             df = self.calc_macd(df)
-            df.to_csv(ticker_file)  # Save locally
         else:
+            # Try to read data locally.
             try:
                 df = pd.read_csv(ticker_file)
                 df = df.set_index("Date")
+                latest_date = df.index[-1]
+                outdated = self.is_outdated(latest_date, day_threshold=5)
+                # If the local data is outdated.
+                if outdated:
+                    df = self.fetch_externally(ticker)
+                    df.to_csv(ticker_file)  # Save merged data locally.
+            # Local data not found.
             except FileNotFoundError:
                 df = self.fetch_externally(ticker)
                 df["Close_Pct_Change"] = df["Adj Close"].pct_change() * 100
@@ -351,10 +360,18 @@ class DataManager:
 
     ##################################################################### Utilities #####################################################################
     def is_outdated(self, date, day_threshold: int = 70):
-        # Ensure month has a leading zero
-        date_str_padded = dt.datetime.strptime(date, "%Y-%m").strftime("%Y-%m")
-        # Convert to datetime object
-        date_object = dt.datetime.strptime(date_str_padded, "%Y-%m")
+
+        has_days = dt.datetime.strptime(date, "%Y-%m-%d").day is not None
+
+        # If the date passed *does not* have days. %Y-%m
+        if not has_days:
+            # Ensure month has a leading zero
+            date_str_padded = dt.datetime.strptime(date, "%Y-%m").strftime("%Y-%m")
+            # Convert to datetime object
+            date_object = dt.datetime.strptime(date_str_padded, "%Y-%m")
+        # If the date passed *does* have days. %Y-%m-%d
+        else:
+            date_object = dt.datetime.strptime(date, "%Y-%m-%d")
         # Get current datetime
         current_date = dt.datetime.now()
         # Calculate difference between dates.
