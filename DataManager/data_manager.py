@@ -73,16 +73,18 @@ class DataManager:
         return df
 
     def get_ticker_list(self, num_tickers: int = 500) -> list:
-        file_path = f"{self.equities_folder}\\constituents.csv"
-        df = pd.read_csv(file_path)
-        df_len = len(df)
+        path = f"{self.equities_folder}\\Stocks"
+        # Get a list of folder names in the specified directory
+        folder_names = [
+            folder
+            for folder in os.listdir(path)
+            if os.path.isdir(os.path.join(path, folder))
+        ]
+        tickers = []
+        for folder_name in folder_names:
+            tickers.append(folder_name)
 
-        # If number of tickers requested is greater than the number of entries in the dataframe, default to the max df size.
-        if num_tickers > df_len:
-            num_tickers = df_len
-        ticker_list = df["Symbol"].to_list()
-        ticker_list = ticker_list[:num_tickers]
-        return ticker_list
+        return tickers
 
     ##################################################################### Equity Earnings Fetching #####################################################################
     def get_earnings(self, ticker: str, frequency: str = "q", expired: int = 90):
