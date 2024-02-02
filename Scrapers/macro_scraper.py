@@ -5,7 +5,7 @@ import os
 import time
 
 # Import the scraper template
-import Scrapers.scraper_template
+import FinancialScrapers.Scrapers.scraper_template
 
 # Pandas imports
 import pandas as pd
@@ -27,7 +27,7 @@ fed_funds_path = f"{cwd}\\Database\\MacroData\\FedFunds\\fed_funds.csv"
 t10_t2_notes_path = f"{cwd}\\Database\\MacroData\\Treasury_Yield_Spread_10Y_2Y\\Treasury_Yield_Spread_10Y_2Y.csv"
 
 
-class MacroScraper(Scrapers.scraper_template.ScraperTemplate):
+class MacroScraper(FinancialScrapers.Scrapers.scraper_template.ScraperTemplate):
     def __init__(self):
         self.cpi_url = "https://www.rateinflation.com/inflation-rate/usa-historical-inflation-rate/"
         self.fed_funds_url = "https://fred.stlouisfed.org/series/FEDFUNDS"

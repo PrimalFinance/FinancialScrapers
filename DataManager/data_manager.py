@@ -9,12 +9,13 @@ import datetime as dt
 # Yahoo finance imports
 import yfinance as yf
 
-# Add the parent directory to sys.path
-sys.path.append(os.path.abspath(os.path.join("..", "Scrapers")))
+cwd = os.getcwd()
+path = os.path.join(cwd, "FinancialScrapers\\Scrapers")
+sys.path.append(path)
 
 # Now you can use relative imports
-from Scrapers.macro_scraper import MacroScraper
-from Scrapers.equity_scraper import EquityScraper
+from FinancialScrapers.Scrapers.macro_scraper import MacroScraper
+from FinancialScrapers.Scrapers.equity_scraper import EquityScraper
 
 # Pandas
 import pandas as pd
