@@ -5,8 +5,6 @@ import os
 # Time & Date imports
 import time
 
-# Import the scraper template
-import Scrapers.scraper_template
 
 # Pandas imports
 import pandas as pd
@@ -86,7 +84,7 @@ commodities = {
 }
 
 
-class CommoditiesScraper(Scrapers.scraper_template.ScraperTemplate):
+class CommoditiesScraper:
     def __init__(self):
         self.browser = None
         super().__init__()

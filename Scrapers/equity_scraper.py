@@ -28,7 +28,6 @@ csv_file_path = cwd + "\\Filings\\quarterly_filings.csv"
 earnings_csv = cwd + "Database\\EquityData\\Earnings"
 
 # Selenium browser settings
-chrome_driver = "D:\\ChromeDriver\\chromedriver.exe"
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument("--no-sandbox")
 # chrome_options.add_argument("--headless")
@@ -36,8 +35,8 @@ chrome_options.add_argument("--disable-gpu")
 
 
 class EquityScraper:
-    def __init__(self) -> None:
-
+    def __init__(self, driver_path: str) -> None:
+        self.chrome_drive = driver_path
         self.key = os.getenv("alpha_vantage_key")
 
         # Root url to make queries.
@@ -369,7 +368,7 @@ class EquityScraper:
         :param url: The website to visit.
         :return: None
         """
-        service = Service(executable_path=chrome_driver)
+        service = Service(executable_path=self.chrome_driver)
         self.browser = webdriver.Chrome(service=service, options=chrome_options)
         # Default browser route
         if url == None:
