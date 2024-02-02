@@ -36,14 +36,16 @@ stocks_folder = f"{equity_data_folder}\\Stocks"
 
 
 class DataManager:
-    def __init__(self, base_data_path: str, log_data=True) -> None:
+    def __init__(
+        self, base_data_path: str, chrome_driver_path: str, log_data=True
+    ) -> None:
         self.base_path = base_data_path
         self.commodities_folder = os.path.join(self.base_path, "CommoditiesData")
         self.equities_folder = os.path.join(self.base_path, "EquityData")
         self.macro_folder = os.path.join(self.base_path, "MacroData")
         self.log_data = log_data
         self.macro_scraper = MacroScraper()
-        self.equity_scraper = EquityScraper()
+        self.equity_scraper = EquityScraper(chrome_driver_path)
 
     ##################################################################### Equity Price Fetching #####################################################################
     def fetch_externally(self, ticker: str, period="max", interval="1d"):
