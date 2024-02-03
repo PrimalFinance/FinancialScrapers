@@ -46,6 +46,7 @@ class DataManager:
         self.log_data = log_data
         self.macro_scraper = MacroScraper()
         self.equity_scraper = EquityScraper(chrome_driver_path)
+        self.expired = 180
 
     ##################################################################### Equity Price Fetching #####################################################################
     def fetch_externally(self, ticker: str, period="max", interval="1d"):
@@ -342,7 +343,7 @@ class DataManager:
                 data = pd.read_csv(file_path)
                 most_recent_filing = data.columns[-1]
                 if self.is_outdated(
-                    most_recent_filing, 130
+                    most_recent_filing, self.expired
                 ):  # Check if most recent filing is outdated.
                     new_data = self.equity_scraper.get_income_statement(ticker, freq)
                     result_data = data.combine_first(new_data)
@@ -386,7 +387,7 @@ class DataManager:
                 data = pd.read_csv(file_path)
                 most_recent_filing = data.columns[-1]
                 if self.is_outdated(
-                    most_recent_filing, 130
+                    most_recent_filing, self.expired
                 ):  # Check if most recent filing is outdated.
                     new_data = self.equity_scraper.get_balance_sheet(ticker, freq)
                     result_data = data.combine_first(new_data)
@@ -428,7 +429,7 @@ class DataManager:
                 data = pd.read_csv(file_path)
                 most_recent_filing = data.columns[-1]
                 if self.is_outdated(
-                    most_recent_filing, 130
+                    most_recent_filing, self.expired
                 ):  # Check if most recent filing is outdated.
                     new_data = self.equity_scraper.get_cash_flow(ticker, freq)
                     result_data = data.combine_first(new_data)
