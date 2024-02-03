@@ -316,47 +316,114 @@ class DataManager:
         return data
 
     ##################################################################### Financial Statements #####################################################################
-    def get_income_statement(self, ticker: str, freq: str = "q"):
+    def get_income_statement(
+        self, ticker: str, freq: str = "q", force_update: bool = False
+    ):
         if freq == "q":
             freq = "Quarter"
         elif freq == "a":
             freq = "Annual"
         file_path = f"{self.equities_folder}\\Stocks\\{ticker.upper()}\\Statements\\{freq}\\{ticker.upper()}_income_statement.csv"
+        # Force new data to be written locally regardless of data's staleness.
+        if force_update:
+            try:
+                data = pd.read_csv(file_path)
+                new_data = self.equity_scraper.get_income_statement(ticker, freq)
+                result_data = data.combine_first(new_data)
+                result_data.to_csv(file_path)
+                return result_data
+            except FileNotFoundError:
+                data = self.equity_scraper.get_income_statement(ticker, freq)
+                data.to_csv(file_path)
+                return data
+        # If no force update, then get the statement regularly.
+        else:
+            try:
+                data = pd.read_csv(file_path)
+                most_recent_filing = data.columns[-1]
+                if self.is_outdated(
+                    most_recent_filing, 130
+                ):  # Check if most recent filing is outdated.
+                    new_data = self.equity_scraper.get_income_statement(ticker, freq)
+                    result_data = data.combine_first(new_data)
+                    result_data.to_csv(file_path)
+                    return result_data
 
-        try:
-            data = pd.read_csv(file_path)
-        except FileNotFoundError:
-            data = self.equity_scraper.get_income_statement(ticker.upper(), freq)
-            data.to_csv(file_path)
-        return data
+            except FileNotFoundError:
+                data = self.equity_scraper.get_income_statement(ticker.upper(), freq)
+                data.to_csv(file_path)
+                return data
 
-    def get_balance_sheet(self, ticker: str, freq: str = "q"):
+    def get_balance_sheet(
+        self, ticker: str, freq: str = "q", force_update: bool = False
+    ):
         if freq == "q":
             freq = "Quarter"
         elif freq == "a":
             freq = "Annual"
         file_path = f"{self.equities_folder}\\Stocks\\{ticker.upper()}\\Statements\\{freq}\\{ticker.upper()}_balance_sheet.csv"
+        if force_update:
+            try:
+                data = pd.read_csv(file_path)
+                new_data = self.equity_scraper.get_balance_sheet(ticker, freq)
+                result_data = data.combine_first(new_data)
+                result_data.to_csv(file_path)
+                return result_data
+            except FileNotFoundError:
+                data = self.equity_scraper.get_balance_sheet(ticker, freq)
+                data.to_csv(file_path)
+                return data
+        # If no force update, then get the statement regularly.
+        else:
+            try:
+                data = pd.read_csv(file_path)
+                most_recent_filing = data.columns[-1]
+                if self.is_outdated(
+                    most_recent_filing, 130
+                ):  # Check if most recent filing is outdated.
+                    new_data = self.equity_scraper.get_balance_sheet(ticker, freq)
+                    result_data = data.combine_first(new_data)
+                    result_data.to_csv(file_path)
+                    return result_data
+            except FileNotFoundError:
+                data = self.equity_scraper.get_balance_sheet(ticker.upper(), freq)
+                data.to_csv(file_path)
+                return data
 
-        try:
-            data = pd.read_csv(file_path)
-        except FileNotFoundError:
-            data = self.equity_scraper.get_balance_sheet(ticker.upper(), freq)
-            data.to_csv(file_path)
-        return data
-
-    def get_cash_flow(self, ticker: str, freq: str = "q"):
+    def get_cash_flow(self, ticker: str, freq: str = "q", force_update: bool = False):
         if freq == "q":
             freq = "Quarter"
         elif freq == "a":
             freq = "Annual"
         file_path = f"{self.equities_folder}\\Stocks\\{ticker.upper()}\\Statements\\{freq}\\{ticker.upper()}_cash_flow.csv"
 
-        try:
-            data = pd.read_csv(file_path)
-        except FileNotFoundError:
-            data = self.equity_scraper.get_cash_flow(ticker.upper(), freq)
-            data.to_csv(file_path)
-        return data
+        if force_update:
+            try:
+                data = pd.read_csv(file_path)
+                new_data = self.equity_scraper.get_cash_flow(ticker, freq)
+                result_data = data.combine_first(new_data)
+                result_data.to_csv(file_path)
+                return result_data
+            except FileNotFoundError:
+                data = self.equity_scraper.get_cash_flow(ticker, freq)
+                data.to_csv(file_path)
+                return data
+        # If no force update, then get the statement regularly.
+        else:
+            try:
+                data = pd.read_csv(file_path)
+                most_recent_filing = data.columns[-1]
+                if self.is_outdated(
+                    most_recent_filing, 130
+                ):  # Check if most recent filing is outdated.
+                    new_data = self.equity_scraper.get_cash_flow(ticker, freq)
+                    result_data = data.combine_first(new_data)
+                    result_data.to_csv(file_path)
+                    return result_data
+            except FileNotFoundError:
+                data = self.equity_scraper.get_cash_flow(ticker.upper(), freq)
+                data.to_csv(file_path)
+                return data
 
     ##################################################################### Utilities #####################################################################
     def is_outdated(self, date, day_threshold: int = 70):
