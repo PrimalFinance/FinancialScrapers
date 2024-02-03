@@ -318,7 +318,11 @@ class DataManager:
 
     ##################################################################### Financial Statements #####################################################################
     def get_income_statement(
-        self, ticker: str, freq: str = "q", force_update: bool = False
+        self,
+        ticker: str,
+        freq: str = "q",
+        force_update: bool = False,
+        write_data: bool = True,
     ):
         if freq == "q":
             freq = "Quarter"
@@ -329,25 +333,38 @@ class DataManager:
         if force_update:
             try:
                 data = pd.read_csv(file_path)
+                try:
+                    data.set_index("Unnamed: 0", inplace=True)
+                    data.index.rename("index", inplace=True)
+                except KeyError:
+                    pass
                 new_data = self.equity_scraper.get_income_statement(ticker, freq)
-                result_data = data.combine_first(new_data)
-                result_data.to_csv(file_path)
+                result_data = pd.concat([data, new_data], axis=1, join="inner")
+                if write_data:
+                    result_data.to_csv(file_path)
                 return result_data
             except FileNotFoundError:
                 data = self.equity_scraper.get_income_statement(ticker, freq)
-                data.to_csv(file_path)
+                if write_data:
+                    data.to_csv(file_path)
                 return data
         # If no force update, then get the statement regularly.
         else:
             try:
                 data = pd.read_csv(file_path)
+                try:
+                    data.set_index("Unnamed: 0", inplace=True)
+                    data.index.rename("index", inplace=True)
+                except KeyError:
+                    pass
                 most_recent_filing = data.columns[-1]
                 if self.is_outdated(
                     most_recent_filing, self.expired
                 ):  # Check if most recent filing is outdated.
                     new_data = self.equity_scraper.get_income_statement(ticker, freq)
-                    result_data = data.combine_first(new_data)
-                    result_data.to_csv(file_path)
+                    result_data = pd.concat([data, new_data], axis=1, join="inner")
+                    if write_data:
+                        result_data.to_csv(file_path)
                     return result_data
                 else:
                     return data
@@ -355,15 +372,21 @@ class DataManager:
             except FileNotFoundError:
                 data = self.equity_scraper.get_income_statement(ticker.upper(), freq)
                 try:
-                    data.to_csv(file_path)
+                    if write_data:
+                        data.to_csv(file_path)
                 except OSError:
                     folder_path = f"{self.equities_folder}\\Stocks\\{ticker.upper()}\\Statements\\{freq}"
                     os.makedirs(folder_path, exist_ok=True)
-                    data.to_csv(file_path)
+                    if write_data:
+                        data.to_csv(file_path)
                 return data
 
     def get_balance_sheet(
-        self, ticker: str, freq: str = "q", force_update: bool = False
+        self,
+        ticker: str,
+        freq: str = "q",
+        force_update: bool = False,
+        write_data: bool = True,
     ):
         if freq == "q":
             freq = "Quarter"
@@ -373,39 +396,60 @@ class DataManager:
         if force_update:
             try:
                 data = pd.read_csv(file_path)
+                try:
+                    data.set_index("Unnamed: 0", inplace=True)
+                    data.index.rename("index", inplace=True)
+                except KeyError:
+                    pass
                 new_data = self.equity_scraper.get_balance_sheet(ticker, freq)
-                result_data = data.combine_first(new_data)
-                result_data.to_csv(file_path)
+                result_data = pd.concat([data, new_data], axis=1, join="inner")
+                if write_data:
+                    result_data.to_csv(file_path)
                 return result_data
             except FileNotFoundError:
                 data = self.equity_scraper.get_balance_sheet(ticker, freq)
-                data.to_csv(file_path)
+                if write_data:
+                    data.to_csv(file_path)
                 return data
         # If no force update, then get the statement regularly.
         else:
             try:
                 data = pd.read_csv(file_path)
+                try:
+                    data.set_index("Unnamed: 0", inplace=True)
+                    data.index.rename("index", inplace=True)
+                except KeyError:
+                    pass
                 most_recent_filing = data.columns[-1]
                 if self.is_outdated(
                     most_recent_filing, self.expired
                 ):  # Check if most recent filing is outdated.
                     new_data = self.equity_scraper.get_balance_sheet(ticker, freq)
-                    result_data = data.combine_first(new_data)
-                    result_data.to_csv(file_path)
+                    result_data = pd.concat([data, new_data], axis=1, join="inner")
+                    if write_data:
+                        result_data.to_csv(file_path)
                     return result_data
                 else:
                     return data
             except FileNotFoundError:
                 data = self.equity_scraper.get_balance_sheet(ticker.upper(), freq)
                 try:
-                    data.to_csv(file_path)
+                    if write_data:
+                        data.to_csv(file_path)
                 except OSError:
                     folder_path = f"{self.equities_folder}\\Stocks\\{ticker.upper()}\\Statements\\{freq}"
                     os.makedirs(folder_path, exist_ok=True)
-                    data.to_csv(file_path)
+                    if write_data:
+                        data.to_csv(file_path)
                 return data
 
-    def get_cash_flow(self, ticker: str, freq: str = "q", force_update: bool = False):
+    def get_cash_flow(
+        self,
+        ticker: str,
+        freq: str = "q",
+        force_update: bool = False,
+        write_data: bool = True,
+    ):
         if freq == "q":
             freq = "Quarter"
         elif freq == "a":
@@ -415,36 +459,51 @@ class DataManager:
         if force_update:
             try:
                 data = pd.read_csv(file_path)
+                try:
+                    data.set_index("Unnamed: 0", inplace=True)
+                    data.index.rename("index", inplace=True)
+                except KeyError:
+                    pass
                 new_data = self.equity_scraper.get_cash_flow(ticker, freq)
-                result_data = data.combine_first(new_data)
-                result_data.to_csv(file_path)
+                result_data = pd.concat([data, new_data], axis=1, join="inner")
+                if write_data:
+                    result_data.to_csv(file_path)
                 return result_data
             except FileNotFoundError:
                 data = self.equity_scraper.get_cash_flow(ticker, freq)
-                data.to_csv(file_path)
+                if write_data:
+                    data.to_csv(file_path)
                 return data
         # If no force update, then get the statement regularly.
         else:
             try:
                 data = pd.read_csv(file_path)
+                try:
+                    data.set_index("Unnamed: 0", inplace=True)
+                    data.index.rename("index", inplace=True)
+                except KeyError:
+                    pass
                 most_recent_filing = data.columns[-1]
                 if self.is_outdated(
                     most_recent_filing, self.expired
                 ):  # Check if most recent filing is outdated.
                     new_data = self.equity_scraper.get_cash_flow(ticker, freq)
-                    result_data = data.combine_first(new_data)
-                    result_data.to_csv(file_path)
+                    result_data = pd.concat([data, new_data], axis=1, join="inner")
+                    if write_data:
+                        result_data.to_csv(file_path)
                     return result_data
                 else:
                     return data
             except FileNotFoundError:
                 data = self.equity_scraper.get_cash_flow(ticker.upper(), freq)
                 try:
-                    data.to_csv(file_path)
+                    if write_data:
+                        data.to_csv(file_path)
                 except OSError:
                     folder_path = f"{self.equities_folder}\\Stocks\\{ticker.upper()}\\Statements\\{freq}"
                     os.makedirs(folder_path, exist_ok=True)
-                    data.to_csv(file_path)
+                    if write_data:
+                        data.to_csv(file_path)
                 return data
 
     ##################################################################### Utilities #####################################################################
