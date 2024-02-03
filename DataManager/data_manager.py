@@ -8,6 +8,7 @@ import datetime as dt
 
 # Yahoo finance imports
 import yfinance as yf
+import yahoo_fin.stock_info as si
 
 cwd = os.getcwd()
 path = os.path.join(cwd, "FinancialScrapers\\Scrapers")
@@ -506,6 +507,24 @@ class DataManager:
                         data.to_csv(file_path)
                 return data
 
+    def get_stock_split(self, ticker: str, force_update: bool = False):
+        ticker = ticker.upper()
+        file_path = f"{self.equities_folder}\\Stocks\\{ticker}\\Splits"
+
+        if force_update or not os.path.exists(f"{file_path}\\{ticker}_splits.csv"):
+            os.makedirs(file_path, exist_ok=True)
+            df = si.get_splits(ticker).T
+            df.to_csv(f"{file_path}\\{ticker}_splits.csv", index=False)
+        else:
+            df = pd.read_csv(f"{file_path}\\{ticker}_splits.csv")
+            try:
+                df.set_index("Unnamed: 0", inplace=True)
+                df.index.rename("index", inplace=True)
+            except KeyError:
+                pass
+
+        return df
+
     ##################################################################### Utilities #####################################################################
     def is_outdated(self, date, day_threshold: int = 70):
 
@@ -524,8 +543,6 @@ class DataManager:
         current_date = dt.datetime.now()
         # Calculate difference between dates.
         elapse = current_date - date_object
-
-        print(f"Elapse: {elapse}")
 
         if elapse.days >= day_threshold:
             return True
@@ -547,6 +564,9 @@ class DataManager:
         # Institutional holders
         institutional_folder = f"{stock_folder}\\InstitutionalHolders"
         os.makedirs(institutional_folder, exist_ok=True)
+        # Stock Splits Folder
+        stock_splits_folder = f"{stocks_folder}\\Splits"
+        os.makedirs(stock_splits_folder, exist_ok=True)
         # Financial Statements
         statements_folder = f"{stock_folder}\\Statements"
         os.makedirs(statements_folder, exist_ok=True)
