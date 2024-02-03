@@ -351,7 +351,12 @@ class DataManager:
 
             except FileNotFoundError:
                 data = self.equity_scraper.get_income_statement(ticker.upper(), freq)
-                data.to_csv(file_path)
+                try:
+                    data.to_csv(file_path)
+                except OSError:
+                    folder_path = f"{self.equities_folder}\\Stocks\\{ticker.upper()}\\Statements\\{freq}"
+                    os.makedirs(folder_path, exist_ok=True)
+                    data.to_csv(file_path)
                 return data
 
     def get_balance_sheet(
@@ -387,7 +392,12 @@ class DataManager:
                     return result_data
             except FileNotFoundError:
                 data = self.equity_scraper.get_balance_sheet(ticker.upper(), freq)
-                data.to_csv(file_path)
+                try:
+                    data.to_csv(file_path)
+                except OSError:
+                    folder_path = f"{self.equities_folder}\\Stocks\\{ticker.upper()}\\Statements\\{freq}"
+                    os.makedirs(folder_path, exist_ok=True)
+                    data.to_csv(file_path)
                 return data
 
     def get_cash_flow(self, ticker: str, freq: str = "q", force_update: bool = False):
@@ -422,7 +432,12 @@ class DataManager:
                     return result_data
             except FileNotFoundError:
                 data = self.equity_scraper.get_cash_flow(ticker.upper(), freq)
-                data.to_csv(file_path)
+                try:
+                    data.to_csv(file_path)
+                except OSError:
+                    folder_path = f"{self.equities_folder}\\Stocks\\{ticker.upper()}\\Statements\\{freq}"
+                    os.makedirs(folder_path, exist_ok=True)
+                    data.to_csv(file_path)
                 return data
 
     ##################################################################### Utilities #####################################################################
