@@ -1,6 +1,5 @@
 # Operating system imports
 import os
-import dotenv
 
 # Date and time
 import datetime as dt
@@ -593,9 +592,16 @@ class EquityScraper:
         df = None
         # Create a dataframe.
         if period in self.quarterly_params:
-            df = pd.DataFrame(data["quarterlyReports"])
+            try:
+                df = pd.DataFrame(data["quarterlyReports"])
+            except KeyError:
+                print(f"Response: {data}")
         elif period in self.annual_params:
-            df = pd.DataFrame(data["annualReports"])
+            try:
+                df = pd.DataFrame(data["annualReports"])
+            except KeyError:
+                print(f"Response: {data}")
+                return
         # Make the row index the dates of the filing.
         df.set_index("fiscalDateEnding", inplace=True)
         # Transpose the dataframe to swap the row labels with the column labels. We want the dates to be the column.
@@ -614,10 +620,16 @@ class EquityScraper:
         df = None
         # Create a dataframe.
         if period in self.quarterly_params:
-            df = pd.DataFrame(data["quarterlyReports"])
+            try:
+                df = pd.DataFrame(data["quarterlyReports"])
+            except KeyError:
+                print(f"Response: {data}")
         elif period in self.annual_params:
-            df = pd.DataFrame(data["annualReports"])
-
+            try:
+                df = pd.DataFrame(data["annualReports"])
+            except KeyError:
+                print(f"Response: {data}")
+                return
         # Make the index the dates of the period of report.
         df.set_index("fiscalDateEnding", inplace=True)
         # Transpose the dataframe to swap the row labels with the column labels.
@@ -636,9 +648,17 @@ class EquityScraper:
         df = None
         # Create a dataframe.
         if period in self.quarterly_params:
-            df = pd.DataFrame(data["quarterlyReports"])
+            try:
+                df = pd.DataFrame(data["quarterlyReports"])
+            except KeyError:
+                print(f"Response: {data}")
+                return
         elif period in self.annual_params:
-            df = pd.DataFrame(data["annualReports"])
+            try:
+                df = pd.DataFrame(data["annualReports"])
+            except KeyError:
+                print(f"Response: {data}")
+                return
         # Make the index the dates of the period of report.
         df.set_index("fiscalDateEnding", inplace=True)
         # Transpose the dataframe to swap the row labels with the column labels.
