@@ -348,6 +348,8 @@ class DataManager:
                     result_data = data.combine_first(new_data)
                     result_data.to_csv(file_path)
                     return result_data
+                else:
+                    return data
 
             except FileNotFoundError:
                 data = self.equity_scraper.get_income_statement(ticker.upper(), freq)
@@ -390,6 +392,8 @@ class DataManager:
                     result_data = data.combine_first(new_data)
                     result_data.to_csv(file_path)
                     return result_data
+                else:
+                    return data
             except FileNotFoundError:
                 data = self.equity_scraper.get_balance_sheet(ticker.upper(), freq)
                 try:
@@ -430,6 +434,8 @@ class DataManager:
                     result_data = data.combine_first(new_data)
                     result_data.to_csv(file_path)
                     return result_data
+                else:
+                    return data
             except FileNotFoundError:
                 data = self.equity_scraper.get_cash_flow(ticker.upper(), freq)
                 try:
