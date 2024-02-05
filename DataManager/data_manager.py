@@ -17,23 +17,12 @@ sys.path.append(path)
 # Now you can use relative imports
 from FinancialScrapers.Scrapers.macro_scraper import MacroScraper
 from FinancialScrapers.Scrapers.equity_scraper import EquityScraper
+from FinancialScrapers.Scrapers.etf_scraper import EtfScraper
 
 # Pandas
 import pandas as pd
 from pandas.errors import EmptyDataError
 import random
-
-
-# Hardcoded folder paths
-cwd = os.getcwd()
-commodity_data_folder = f"{cwd}\\Database\\CommoditiesData"
-equity_data_folder = f"{cwd}\\Database\\EquityData"
-macro_data_folder = f"{cwd}\\Database\\MacroData"
-
-# Hardcoded sub-folder paths
-earnings_folder = f"{equity_data_folder}\\Earnings"
-filings_folder = f"{equity_data_folder}\\Filings"
-stocks_folder = f"{equity_data_folder}\\Stocks"
 
 
 class DataManager:
@@ -44,9 +33,11 @@ class DataManager:
         self.commodities_folder = os.path.join(self.base_path, "CommoditiesData")
         self.equities_folder = os.path.join(self.base_path, "EquityData")
         self.macro_folder = os.path.join(self.base_path, "MacroData")
+        self.etf_folder = os.path.join(self.base_path, "EtfData")
         self.log_data = log_data
         self.macro_scraper = MacroScraper()
         self.equity_scraper = EquityScraper(chrome_driver_path)
+        self.etf_scraper = EtfScraper()
         self.expired = 180
 
     ##################################################################### Equity Price Fetching #####################################################################
@@ -550,6 +541,26 @@ class DataManager:
         df["multiplier"] = new_split_data["multiplier"]
         return df
 
+    ##################################################################### ETF Data #####################################################################
+    def get_ETFs_by_market(self, market: str = "us_markets"):
+        market = (
+            market.lower()
+        )  # Ensures that market is all lowercase to avoid any key errors.
+
+        file_path = f"{self.etf_folder}\\{market}.csv"
+        try:
+            df = pd.read_csv(file_path)
+            try:
+                df.set_index("Unnamed: 0", inplace=True)
+                df.index.rename("index", inplace=True)
+            except KeyError:
+                pass
+        except FileNotFoundError:
+            df = self.etf_scraper.get_filtered_data(market)
+            df.to_csv(file_path)
+
+        return df
+
     ##################################################################### Utilities #####################################################################
     def is_outdated(self, date, day_threshold: int = 70):
 
@@ -590,7 +601,7 @@ class DataManager:
         institutional_folder = f"{stock_folder}\\InstitutionalHolders"
         os.makedirs(institutional_folder, exist_ok=True)
         # Stock Splits Folder
-        stock_splits_folder = f"{stocks_folder}\\Splits"
+        stock_splits_folder = f"{stock_folder}\\Splits"
         os.makedirs(stock_splits_folder, exist_ok=True)
         # Financial Statements
         statements_folder = f"{stock_folder}\\Statements"
