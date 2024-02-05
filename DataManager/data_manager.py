@@ -542,7 +542,7 @@ class DataManager:
         return df
 
     ##################################################################### ETF Data #####################################################################
-    def get_ETFs_by_market(self, market: str = "us_markets"):
+    def get_ETFs_by_market(self, market: str = "us_market"):
         market = (
             market.lower()
         )  # Ensures that market is all lowercase to avoid any key errors.
