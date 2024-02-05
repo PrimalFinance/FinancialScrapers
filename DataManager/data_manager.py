@@ -523,6 +523,31 @@ class DataManager:
             except KeyError:
                 pass
 
+        split_indexes = df.index
+        split_indexes = [dt.datetime.strptime(c, "%Y-%m-%d") for c in split_indexes]
+        if (
+            split_indexes[0] < split_indexes[-1]
+        ):  # If first index is older than last index.
+            df = df.iloc[
+                ::-1
+            ]  # Reverse dataframe so first index is now the most recent split.
+        multiplier = 0
+        new_split_data = {"multiplier": {}, "ticker": {}}
+        for index, row in df.iterrows():
+            split_amount, ticker = row.values
+            prefix, suffix = split_amount.split(":")
+            prefix, suffix = int(prefix), int(suffix)
+            if prefix > suffix:  # Forward split
+                multiplier += prefix
+            elif prefix < suffix:  # Reverse split
+                multiplier -= suffix
+            new_split_data["multiplier"][index] = multiplier
+            new_split_data["ticker"][index] = ticker
+        new_split_data = pd.DataFrame(
+            new_split_data
+        )  # Convert new data to a dataframe.
+
+        df["multiplier"] = new_split_data["multiplier"]
         return df
 
     ##################################################################### Utilities #####################################################################
