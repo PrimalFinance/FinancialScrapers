@@ -37,6 +37,7 @@ class DataManager:
         self.macro_folder = os.path.join(self.base_path, "MacroData")
         self.etf_folder = os.path.join(self.base_path, "EtfData")
         self.cik_folder = os.path.join(self.equities_folder, "CIK")
+        self.stock_analysis = StockAnalysis()
         self.log_data = log_data
         self.macro_scraper = MacroScraper()
         self.equity_scraper = EquityScraper(chrome_driver_path)
