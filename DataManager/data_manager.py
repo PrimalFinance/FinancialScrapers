@@ -19,7 +19,7 @@ from FinancialScrapers.Scrapers.macro_scraper import MacroScraper
 from FinancialScrapers.Scrapers.equity_scraper import EquityScraper
 from FinancialScrapers.Scrapers.etf_scraper import EtfScraper
 from FinancialScrapers.Scrapers.sec_scraper import SecScraper
-from FinancialScrapers.Scrapers.sec_scraper import StockAnalysis
+from FinancialScrapers.Scrapers.stock_analysis_scraper import StockAnalysis
 
 # Pandas
 import pandas as pd
