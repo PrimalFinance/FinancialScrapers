@@ -18,6 +18,8 @@ sys.path.append(path)
 from FinancialScrapers.Scrapers.macro_scraper import MacroScraper
 from FinancialScrapers.Scrapers.equity_scraper import EquityScraper
 from FinancialScrapers.Scrapers.etf_scraper import EtfScraper
+from FinancialScrapers.Scrapers.sec_scraper import SecScraper
+from FinancialScrapers.Scrapers.sec_scraper import StockAnalysis
 
 # Pandas
 import pandas as pd
@@ -34,10 +36,12 @@ class DataManager:
         self.equities_folder = os.path.join(self.base_path, "EquityData")
         self.macro_folder = os.path.join(self.base_path, "MacroData")
         self.etf_folder = os.path.join(self.base_path, "EtfData")
+        self.cik_folder = os.path.join(self.equities_folder, "CIK")
         self.log_data = log_data
         self.macro_scraper = MacroScraper()
         self.equity_scraper = EquityScraper(chrome_driver_path)
         self.etf_scraper = EtfScraper()
+        self.sec_scraper = SecScraper(self.cik_folder)
         self.expired = 180
 
     ##################################################################### Equity Price Fetching #####################################################################

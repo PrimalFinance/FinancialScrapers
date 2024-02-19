@@ -21,10 +21,6 @@ import yfinance as yf
 
 # Get the current working directory.
 cwd = os.getcwd()
-# Path to csv file.
-csv_file_path = cwd + "\\Filings\\quarterly_filings.csv"
-# Path to "earnings.csv".
-earnings_csv = cwd + "Database\\EquityData\\Earnings"
 
 # Selenium browser settings
 chrome_options = webdriver.ChromeOptions()
